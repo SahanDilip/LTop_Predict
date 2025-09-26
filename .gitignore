@@ -1,0 +1,65 @@
+# Python virtual environment
+venv/
+model/Lib/
+model/Include/
+model/Scripts/
+model/pyvenv.cfg
+website/Lib/
+website/Include/
+website/Scripts/
+website/pyvenv.cfg
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# VS Code settings
+.vscode/
+*.code-workspace
+
+# Environment variables
+.env
+.env.*
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Python compiled files
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+logs/
+log/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Cache directories
+.cache/
+.pytest_cache/
+
+# Local development settings
+instance/
+.webassets-cache
+
+# Database files
+*.db
+*.sqlite3
+*.sqlite
