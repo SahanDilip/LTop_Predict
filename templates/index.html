@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Laptop Price Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .main-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            backdrop-filter: blur(20px);
+        }
+
+        .side-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: 700;
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .inputfield {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .inputfield.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .inputfield label {
+            font-weight: 600;
+            color: #b0b0b0;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        select.input option {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .input, .custom_select select {
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 16px;
+            background: #000000;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .input:focus, .custom_select select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .custom_select {
+            position: relative;
+        }
+
+        .custom_select select {
+            width: 100%;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .custom_select select option {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .check {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .check-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .check-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+            cursor: pointer;
+        }
+
+        .check-item {
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+
+        .btn {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .currency-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .currency-btn {
+            padding: 8px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .currency-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .result {
+            background: rgba(40, 167, 69, 0.1);
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result .price {
+            font-size: 2em;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+
+        .price-range {
+            font-size: 0.9em;
+            color: #b0b0b0;
+            margin-top: 10px;
+        }
+
+        .side-panel h3 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .current-selection, .prediction-history {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .selection-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            font-size: 0.9em;
+        }
+
+        .selection-item:last-child {
+            border-bottom: none;
+        }
+
+        .prediction-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .prediction-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .prediction-price {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .prediction-date {
+            font-size: 0.8em;
+            color: #888;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-panel {
+                padding: 25px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .check {
+                flex-direction: column;
+            }
+            
+            .check > div {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-panel">
+            <div class="title">AI Laptop Price Predictor</div>
+            
+            <div class="currency-toggle">
+                <button class="currency-btn active" onclick="setCurrency('LKR')">LKR</button>
+                <button class="currency-btn" onclick="setCurrency('USD')">USD</button>
+            </div>
+
+            <form id="laptopForm">
+                <div class="form">
+                    <div class="inputfield">
+                        <label for="ram">
+                            RAM (GB) 
+                            <span class="tooltip" data-tooltip="8GB: Office work | 16GB: Gaming/Design | 32GB: Professional">ℹ️</span>
+                        </label>
+                        <select class="input" name="ram" id="ram" required>
+                            <option value="" selected hidden>Select a RAM</option>
+                            <option value="4">4 GB</option>
+                            <option value="8">8 GB</option>
+                            <option value="16">16 GB</option>
+                            <option value="32">32 GB</option>
+                        </select>
+                        <div class="error" id="ram-error"></div>
+                    </div>
+                    
+                    <div class="inputfield">
+                        <label for="weight">
+                            Weight (Kg) 
+                            <span class="tooltip" data-tooltip="Under 1.5kg: Ultraportable | 1.5-2.5kg: Standard | Over 2.5kg: Gaming/Workstation">ℹ️</span>
+                        </label>
+                        <input class="input" type="number" step="0.1" min="0.5" max="5" name="weight" id="weight" placeholder="Choose a weight (e.g., 1.4)" required>
+                        <div class="error" id="weight-error"></div>
+                    </div>
+                    
+                    <div class="inputfield">
+                        <label for="company">
+                            Company 
+                            <span class="tooltip" data-tooltip="Premium brands typically cost more for similar specs">ℹ️</span>
+                        </label>
+                        <div class="custom_select">
+                            <select name="company" id="company" required>
+                                <option value="" selected>Select Company</option>
+                                <option value="Acer">Acer</option>
+                                <option value="Apple">Apple</option>
+                                <option value="Asus">Asus</option>
+                                <option value="Dell">Dell</option>
+                                <option value="HP">HP</option>
+                                <option value="Lenovo">Lenovo</option>
+                                <option value="MSI">MSI</option>
+                                <option value="Other">Other</option>
+                                <option value="Toshiba">Toshiba</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="inputfield">
+                        <label for="typename">
+                            Type Name 
+                            <span class="tooltip" data-tooltip="Gaming: High-performance | Ultrabook: Thin & light | Workstation: Professional">ℹ️</span>
+                        </label>
+                        <div class="custom_select">
+                            <select name="typename" id="typename" required>
+                                <option value="" selected>Select Type Name</option>
+                                <option value="2 in 1 Convertible">2 in 1 Convertible</option>
+                                <option value="Gaming">Gaming</option>
+                                <option value="Netbook">Netbook</option>
+                                <option value="Notebook">Notebook</option>
+                                <option value="Ultrabook">Ultrabook</option>
+                                <option value="Workstation">Workstation</option>
+                            </select> 
+                        </div>
+                    </div>
+                    
+                    <div class="inputfield">
+                        <label for="opsys">
+                            Operating System 
+                            <span class="tooltip" data-tooltip="Windows: Most compatible | Mac: Premium | Linux: Developer-friendly">ℹ️</span>
+                        </label>           
+                        <div class="custom_select">
+                            <select name="opsys" id="opsys" required>
+                                <option value="" selected>Select Operating System</option>
+                                <option value="Chrome OS">Chrome OS</option>
+                                <option value="Linux">Linux</option>
+                                <option value="Mac">Mac</option>
+                                <option value="No OS">No OS</option>
+                                <option value="Other">Other</option>
+                                <option value="Windows">Windows</option>
+                            </select> 
+                        </div>
+                    </div>
+                    
+                    <div class="inputfield">
+                        <label for="cpuname">
+                            CPU 
+                            <span class="tooltip" data-tooltip="i3: Basic tasks | i5: Most users | i7: High performance | AMD: Good value">ℹ️</span>
+                        </label>   
+                        <div class="custom_select">
+                            <select name="cpuname" id="cpuname" required>
+                                <option value="" selected>Select CPU</option>
+                                <option value="AMD">AMD</option>
+                                <option value="Intel Celeron Dual">Intel Celeron Dual</option>
+                                <option value="Intel Core M">Intel Core M</option>
+                                <option value="Intel Core i3">Intel Core i3</option>
+                                <option value="Intel Core i5">Intel Core i5</option>
+                                <option value="Intel Core i7">Intel Core i7</option>
+                                <option value="Intel Pentium Quad">Intel Pentium Quad</option>
+                                <option value="Other">Other</option>
+                            </select>  
+                        </div>
+                    </div>
+                    
+                    <div class="inputfield">
+                        <label for="gpuname">
+                            GPU 
+                            <span class="tooltip" data-tooltip="Intel: Basic graphics | AMD/Nvidia: Gaming & creative work">ℹ️</span>
+                        </label>
+                        <div class="custom_select">
+                            <select name="gpuname" id="gpuname" required>
+                                <option value="" selected>Select GPU</option>
+                                <option value="AMD">AMD</option>
+                                <option value="Intel">Intel</option>
+                                <option value="Nvidia">Nvidia</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="check">
+                        <label class="check-item">
+                            <input type="checkbox" name="touchscreen" id="touchscreen" value="1">
+                            Touch Screen
+                        </label>
+                        <label class="check-item">
+                            <input type="checkbox" name="ips" id="ips" value="1">
+                            IPS Display
+                        </label>
+                    </div>
+
+
+                    <button class="btn" type="submit">Predict Price</button>
+                </div>
+            </form>
+
+            <div class="result" id="result">
+                <div class="price" id="predicted-price">LKR 0</div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <h3>Current Selection</h3>
+            <div class="current-selection" id="current-selection">
+                <div class="selection-item">
+                    <span>No selections yet</span>
+                </div>
+            </div>
+
+            <h3>Prediction History</h3>
+            <div class="prediction-history" id="prediction-history">
+                <div style="color: #888; text-align: center; padding: 20px;">
+                    No predictions yet
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCurrency = 'LKR';
+        let exchangeRate = 300; // 1 USD = 300 LKR (approximate)
+        let predictionHistory = [];
+
+        // Form submission and ML model simulation
+        document.getElementById('laptopForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (validateForm()) {
+                showLoading();
+                const formData = getFormData();
+                
+                // Simulate ML model prediction with realistic delay
+                setTimeout(async () => {
+                    const price = await callPredictionAPI(formData);
+                    displayResult(price);
+                    saveToHistory(formData, price);
+                    hideLoading();
+                }, 1500);
+            }
+        });
+
+        // Form change listeners
+        document.querySelectorAll('select, input').forEach(element => {
+            element.addEventListener('change', updateCurrentSelection);
+        });
+
+        function validateForm() {
+            let isValid = true;
+            
+            // Clear previous errors
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+            
+            const weight = document.getElementById('weight').value;
+            if (weight < 0.5 || weight > 5) {
+                document.getElementById('weight-error').textContent = 'Weight must be between 0.5kg and 5kg';
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        function getFormData() {
+            return {
+                ram: document.getElementById('ram').value,
+                weight: parseFloat(document.getElementById('weight').value),
+                company: document.getElementById('company').value,
+                typename: document.getElementById('typename').value,
+                opsys: document.getElementById('opsys').value,
+                cpuname: document.getElementById('cpuname').value,
+                gpuname: document.getElementById('gpuname').value,
+                touchscreen: document.getElementById('touchscreen').checked,
+                ips: document.getElementById('ips').checked
+            };
+        }
+
+        async function callPredictionAPI(data) {
+            const formData = new FormData();
+            formData.append('ram', data.ram);
+            formData.append('weight', data.weight);
+            formData.append('company', data.company);
+            formData.append('typename', data.typename);
+            formData.append('opsys', data.opsys);
+            formData.append('cpuname', data.cpuname);
+            formData.append('gpuname', data.gpuname);
+            
+            if (data.touchscreen) formData.append('touchscreen', 'on');
+            if (data.ips) formData.append('ips', 'on');
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.error || 'Prediction failed');
+            }
+            
+            return result.prediction;
+        }
+
+        function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        }
+
+        function displayResult(priceLKR) {
+            const displayPrice = currentCurrency === 'USD' ? Math.round(priceLKR / exchangeRate) : priceLKR;
+            
+            document.getElementById('predicted-price').textContent = 
+                `${currentCurrency} ${displayPrice.toLocaleString()}`;
+
+            document.getElementById('result').classList.add('show');
+        }
+
+        function setCurrency(currency) {
+            currentCurrency = currency;
+            document.querySelectorAll('.currency-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Refresh result if exists
+            const resultElement = document.getElementById('result');
+            if (resultElement.classList.contains('show')) {
+                // Get the original LKR price from the last prediction
+                if (predictionHistory.length > 0) {
+                    const lastPrice = predictionHistory[0].priceLKR;
+                    displayResult(lastPrice);
+                }
+            }
+            
+            // Refresh history display
+            displayPredictionHistory();
+        }
+
+        function updateCurrentSelection() {
+            const formData = getFormData();
+            const selectionDiv = document.getElementById('current-selection');
+            
+            let html = '';
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value && value !== '' && value !== false) {
+                    const displayValue = typeof value === 'boolean' ? '✓' : value;
+                    html += `<div class="selection-item">
+                        <span>${key.charAt(0).toUpperCase() + key.slice(1)}:</span>
+                        <span>${displayValue}</span>
+                    </div>`;
+                }
+            });
+            
+            selectionDiv.innerHTML = html || '<div class="selection-item"><span>No selections yet</span></div>';
+        }
+
+        function saveToHistory(formData, priceLKR) {
+            const prediction = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                specs: formData,
+                priceLKR: priceLKR,
+                displayCurrency: currentCurrency
+            };
+            
+            predictionHistory.unshift(prediction);
+            predictionHistory = predictionHistory.slice(0, 5); // Keep only last 5
+            
+            displayPredictionHistory();
+        }
+
+        function displayPredictionHistory() {
+            const historyDiv = document.getElementById('prediction-history');
+            
+            if (predictionHistory.length === 0) {
+                historyDiv.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">No predictions yet</div>';
+                return;
+            }
+            
+            let html = '';
+            predictionHistory.forEach(prediction => {
+                const displayPrice = currentCurrency === 'USD' ? 
+                    Math.round(prediction.priceLKR / exchangeRate) : prediction.priceLKR;
+                    
+                html += `<div class="prediction-item" onclick="loadPrediction(${prediction.id})">
+                    <div class="prediction-price">${currentCurrency} ${displayPrice.toLocaleString()}</div>
+                    <div class="prediction-date">${prediction.date}</div>
+                    <div style="font-size: 0.8em; color: #aaa;">${prediction.specs.company} ${prediction.specs.typename}</div>
+                </div>`;
+            });
+            
+            historyDiv.innerHTML = html;
+        }
+
+        function loadPrediction(id) {
+            const prediction = predictionHistory.find(p => p.id === id);
+            if (prediction) {
+                // Load the form data
+                Object.entries(prediction.specs).forEach(([key, value]) => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = value;
+                        } else {
+                            element.value = value;
+                        }
+                    }
+                });
+                updateCurrentSelection();
+                displayResult(prediction.priceLKR);
+            }
+        }
+
+        function showLoading() {
+            const btn = document.querySelector('.btn[type="submit"]');
+            btn.textContent = 'Calculating...';
+            btn.disabled = true;
+            document.querySelector('.main-panel').classList.add('loading');
+        }
+
+        function hideLoading() {
+            const btn = document.querySelector('.btn[type="submit"]');
+            btn.textContent = 'Predict Price';
+            btn.disabled = false;
+            document.querySelector('.main-panel').classList.remove('loading');
+        }
+
+        // Initialize
+        updateCurrentSelection();
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('laptopForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
